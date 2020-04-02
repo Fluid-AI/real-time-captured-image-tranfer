@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Client Receiver</title>
+</head>
+
+<body>
+    <table>
+
+        <tr th:each="image: ${images}">
+            <img th:attr="src=@{'/image/' + ${image} }" />
+        </tr>
+    </table>
+</body>
+<script>
+    window.onload = () => {
+        setInterval(() => {
+            location.reload();
+        }, 5_000)
+    }
+</script>
+
+</html>
