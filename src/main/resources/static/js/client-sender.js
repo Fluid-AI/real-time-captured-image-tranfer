@@ -1,4 +1,4 @@
-const INTERVAL_OF_CAPTURING_IMAGE_IN_MILI = 10_000;
+const INTERVAL_OF_CAPTURING_IMAGE_IN_MILI = 30_000;
 
 window.onload = () => {
     var video = document.getElementById('video'),
