@@ -20,18 +20,18 @@ public class ClientSenderController {
 
     private static final int MIN_FILE_COUNT = 3;
 
-    @GetMapping("sender")
+    @GetMapping("client-sender")
     public ModelAndView clientSender(ModelAndView modelAndView) {
         return new ModelAndView("client-sender");
     }
 
     @PostMapping("/upload")
     public String uploadFile(@RequestParam("file") MultipartFile file) throws IOException, URISyntaxException {
-        saveFile(file);
+        saveRealTimeImageInDir(file);
         return "success";
     }
 
-    void saveFile(MultipartFile newImageFile) throws IOException, URISyntaxException {
+    void saveRealTimeImageInDir(MultipartFile newImageFile) throws IOException, URISyntaxException {
 
         File newFile = new File(FilePathUtil.imageAbsolutePathWithName());
         log.debug("Image will be stored at {}",newFile.getAbsolutePath());
