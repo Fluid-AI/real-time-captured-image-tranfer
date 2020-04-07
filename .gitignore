@@ -10,4 +10,7 @@ real-time-image-transfer.iml
 target/
 target;abc;image.jpg
 
+.classpath
+.project
+.settings/
 

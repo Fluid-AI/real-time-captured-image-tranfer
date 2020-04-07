@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Client Receiver</title>
+    <style>
+        .real-time-image {
+            margin: 0px;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <h3> currennt Time: <span th:text="${#dates.format(new java.util.Date())}"></span></h3>
+    <button onclick="location.reload()">Reload</button>
+    <table width="100%">
+        <tr th:each="realTimeImage: ${realTimeImages}">
+            <h4 th:text="${#dates.format(new java.util.Date(realTimeImage.imageTime))}"></h4>
+            <br>
+            <img class = "real-time-image" th:attr="src=@{'/image/' + ${realTimeImage.imageName} }" />
+        </tr>
+    </table>
+
+</body>
+<script>
+        window.onload = () => {
+            setInterval(() => {
+                location.reload();
+            }, 30_000)
+        }
+</script>
+
+</html>

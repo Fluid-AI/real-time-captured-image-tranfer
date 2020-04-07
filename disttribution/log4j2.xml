@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="rootLogLevel">debug</Property>
+        <Property name="externalLibLogLevel">error</Property>
+        <Property name="springLevel">error</Property>
+        <Property name="springfox">error</Property>
+        <Property name="hibernateLevel">error</Property>
+        <Property name="pattern"
+                  value="%highlight{[%d{yy-MM-dd HH:mm:ss}][%p][%c{1}:%L][%t]:} %m%n"/>
+        <Property name="filename">LogFiles/log.txt</Property>
+    </Properties>
+    <Loggers>
+        <Root level="${rootLogLevel}">
+            <AppenderRef ref="Console"/>
+            <!-- <AppenderRef ref="file" /> -->
+            <AppenderRef ref="FileAppender"/>
+        </Root>
+        <logger name="org" level="${springLevel}"/>
+        <logger name="com" level="${springLevel}"/>
+        <logger name="springfox" level="${springfox}"/>
+        <logger name="org.hibernate" level="${hibernateLevel}"/>
+        <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor"
+                level="${springLevel}"/>
+
+    </Loggers>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout>
+                <Pattern>${pattern}</Pattern>
+            </PatternLayout>
+        </Console>
+        <!-- <File name="file" fileName="${filename}"> -->
+        <!-- <PatternLayout> -->
+        <!-- <Pattern>${pattern}</Pattern> -->
+        <!-- </PatternLayout> -->
+        <!-- </File> -->
+        <RollingFile name="FileAppender" fileName="LogFiles/log.txt" filePattern="LogFiles/log-%d{yyyy-MM-dd}-%i.txt">
+            <PatternLayout>
+                <Pattern>${pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+</Configuration>
