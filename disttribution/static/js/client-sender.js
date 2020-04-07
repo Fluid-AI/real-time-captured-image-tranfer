@@ -19,13 +19,17 @@ window.onload = () => {
     }, function (error) {
         alert('Couldnt stream camera video');
     });
-    //send image in 30 seconds interval
+    
+    //send image in every INTERVAL_OF_CAPTURING_IMAGE_IN_MILI seconds interval
     setInterval(() => {
-    // document.getElementById('capture').addEventListener('click', function () {
         context.drawImage(video, 0, 0, 600, 500);
         takeImage();
-    // });
     }, INTERVAL_OF_CAPTURING_IMAGE_IN_MILI);
+
+    document.getElementById('capture').addEventListener('click', function () {
+        context.drawImage(video, 0, 0, 600, 500);
+        takeImage();
+    });
 
     function takeImage() {
         var canvas = document.getElementById("canvas");

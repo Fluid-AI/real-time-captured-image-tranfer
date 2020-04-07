@@ -14,6 +14,7 @@
 
 <body>
     <h3> currennt Time: <span th:text="${#dates.format(new java.util.Date())}"></span></h3>
+    <small>It will auto reload every 25 seconds</small>
     <button onclick="location.reload()">Reload</button>
     <table width="100%">
         <tr th:each="realTimeImage: ${realTimeImages}">
@@ -28,7 +29,7 @@
         window.onload = () => {
             setInterval(() => {
                 location.reload();
-            }, 30_000)
+            }, 25_000)
         }
 </script>
 
