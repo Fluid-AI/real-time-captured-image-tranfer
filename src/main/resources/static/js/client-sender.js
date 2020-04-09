@@ -6,40 +6,83 @@ window.onload = () => {
         context = canvas.getContext('2d'),
         vendorURL = window.URL || window.webkitURL;
 
+    // On loading page. It will show you the camera streams.
+    // user can set up the camera in the mean time.
     navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia
         || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
     navigator.getMedia({
         video: true,
         audio: false
-    }, function (stream) {
+    }, async function (stream) {
         video.srcObject = stream;
         video.play();
-
     }, function (error) {
         alert('Couldnt stream camera video');
     });
-    
-    //send image in every INTERVAL_OF_CAPTURING_IMAGE_IN_MILI seconds interval
-    setInterval(() => {
-        context.drawImage(video, 0, 0, 600, 500);
-        takeImage();
-    }, INTERVAL_OF_CAPTURING_IMAGE_IN_MILI);
 
+    //send image in every INTERVAL_OF_CAPTURING_IMAGE_IN_MILI seconds interval
+    setInterval(takeImageFromCamera, INTERVAL_OF_CAPTURING_IMAGE_IN_MILI);
+
+    //manually clicking the take image
     document.getElementById('capture').addEventListener('click', function () {
-        context.drawImage(video, 0, 0, 600, 500);
-        takeImage();
+        takeImageFromCamera();
     });
 
+    //starts the camera takes the image and closes the camera.
+    async function startCameraAndStreamVideo() {
+        navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia
+            || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+        navigator.getMedia({
+            video: true,
+            audio: false
+        }, async function (stream) {
+            video.srcObject = stream;
+
+            //play the video. then draw it on canvas. after then image will be sent to server.
+            //close the camera.
+            video.play().then(() => {
+                context.drawImage(video, 0, 0, 600, 500);
+                takeImage();
+                stopStreamedVideo();
+            });
+        }, function (error) {
+            alert('Couldnt stream camera video');
+        });
+        return;
+    }
+
+    //closes the camera.
+    function stopStreamedVideo() {
+        if (video.srcObject == null) {
+            return;
+        }
+        const stream = video.srcObject;
+        const tracks = stream.getTracks();
+
+        tracks.forEach((track) => track.stop());
+
+        video.srcObject = null;
+        return;
+    }
+
+    //will be called by interval method.
+    function takeImageFromCamera() {
+        //remember to stop already running camera.
+        stopStreamedVideo();
+        startCameraAndStreamVideo();
+    }
+
+    //converts canvas to image. and sends to server.
     function takeImage() {
         var canvas = document.getElementById("canvas");
         var img = canvas.toDataURL("image/png");
-        // console.log(i++);
-        // document.write('<img src="' + img + '"/>');
         uploadImageToServer(img);
     }
 };
 
+//upload the given image to server.
 function uploadImageToServer(imageFile) {
     const formData = new FormData();
     formData.append("file", convertDataUriToBlob(imageFile));
@@ -52,6 +95,8 @@ function uploadImageToServer(imageFile) {
 
     xhr.send(formData);
 }
+
+// convert image uril to blob for sening the data.
 function convertDataUriToBlob(dataUri) {
     const byteString = atob(dataUri.split(',')[1]);
     const mimeString = dataUri.split(',')[0].split(':')[1].split(';')[0]
