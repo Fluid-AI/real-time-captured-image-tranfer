@@ -1,45 +1,45 @@
 package ai.fluid.util.realtimeimagetransfer.controller;
 
 import ai.fluid.util.realtimeimagetransfer.dto.RealTimeImageResponseDto;
+import ai.fluid.util.realtimeimagetransfer.service.ClientReceiverService;
 import ai.fluid.util.realtimeimagetransfer.util.FilePathUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class ClientReceiverController {
+    @Autowired
+    private final ClientReceiverService clientReceiverService;
 
     @RequestMapping("client-receiver")
     public ModelAndView clientReceiverPage() {
         ModelAndView model = new ModelAndView("client-receiver");
 
-        File[] allRealTimeImagesArr = new File(FilePathUtil.imagesAbsolutePath()).listFiles();
-
-        if (allRealTimeImagesArr == null) {
-            allRealTimeImagesArr = new File[0];
-        }
-
-        List<RealTimeImageResponseDto> sortedRealTimeImageList = Stream.of(allRealTimeImagesArr)
-                .sorted((f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified()))
-                .map(File::getName)
-                .map(this::mapFileNameToImageDetailsDto)
-                .collect(Collectors.toList());
-
+        List<RealTimeImageResponseDto> sortedRealTimeImageList = clientReceiverService.getRealTimeImageResponseDtos();
         model.addObject("realTimeImages", sortedRealTimeImageList);
+
         return model;
     }
 
-    RealTimeImageResponseDto mapFileNameToImageDetailsDto(String imageName) {
-        return RealTimeImageResponseDto.builder()
-                .imageName(imageName)
-                .imageTime(Long.parseLong(imageName.substring(0, imageName.length() - 5))) // remove last .jpeg
-                .build();
+    @RequestMapping("/image/{imageName}")
+    public byte[] getImage(@PathVariable String imageName, HttpServletResponse httpServletResponse) throws IOException {
+        File file = new File(FilePathUtil.imagesAbsolutePath() + File.separator + imageName);
+        if (!file.exists()) {
+            return new byte[0];
+        }
+        return Files.readAllBytes(file.toPath());
     }
 }
