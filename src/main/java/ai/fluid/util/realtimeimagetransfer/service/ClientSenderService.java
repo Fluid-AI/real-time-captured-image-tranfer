@@ -7,14 +7,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 
 @Slf4j
 @Service
 public class ClientSenderService {
 
-    private static final int MIN_FILE_COUNT = 3;
+    private static final int MIN_FILE_COUNT = 1;
 
     public void saveRealTimeImageInDir(MultipartFile newImageFile) throws IOException {
 
