@@ -22,8 +22,10 @@ public class ClientSenderController {
     private final ClientSenderService clientSenderService;
 
     @GetMapping("client-sender")
-    public ModelAndView clientSender(ModelAndView modelAndView) {
-        return new ModelAndView("client-sender");
+    public ModelAndView clientSender() {
+        ModelAndView modelAndView = new ModelAndView("client-sender");
+        modelAndView.addObject("captureImageInterval",clientSenderService.getCaptureImageInterval());
+        return modelAndView;
     }
 
     @PostMapping("/upload")

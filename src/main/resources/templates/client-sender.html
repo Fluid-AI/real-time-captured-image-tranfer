@@ -1,20 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Client Sender</title>
 </head>
 
+
 <body>
     <div class="booth">
         <video id="video" width="600" height="500" src=""></video>
-        <h3>Above winodw will disapper in 30 seconds. Set up your camera position. After 30 seconds it will open camera only when taking pics. Howerever you can reload the page and it will start again.</h3>
+        <h3>Above winodw will disapper in <span th:text="${captureImageInterval}">25</span> seconds. Set up your camera position.
+            <br>After <span th:text="${captureImageInterval}">25</span> seconds it will open camera only when taking pics with the interval of
+            <span th:text="${captureImageInterval}">25</span> seconds. Howerever you can reload the page and it will start again.</h3>
         <a href="#" id="capture" class="booth-capture-button">Take photo</a>
         <canvas id="canvas" width="600" height="500"></canvas>
     </div>
     <div id="img1"></div>
     <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
-    <script th:src= "@{/js/client-sender.js}"></script>
+    <script th:src="@{/js/client-sender.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        //to be used by client-sender.js
+        const INTERVAL_OF_CAPTURING_IMAGE_IN_SECONDS = /*[[${captureImageInterval}]]*/ 25;
+        /*]]>*/
+
+        window.onload = () => {
+            senderFunction(INTERVAL_OF_CAPTURING_IMAGE_IN_SECONDS);
+        }
+    </script>
 </body>
 
 </html>

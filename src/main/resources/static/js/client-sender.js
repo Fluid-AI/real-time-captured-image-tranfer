@@ -1,6 +1,4 @@
-const INTERVAL_OF_CAPTURING_IMAGE_IN_MILI = 30_000;
-
-window.onload = () => {
+function senderFunction(captureImageInterval) {
     var video = document.getElementById('video'),
         canvas = document.getElementById('canvas'),
         context = canvas.getContext('2d'),
@@ -8,36 +6,37 @@ window.onload = () => {
 
     // On loading page. It will show you the camera streams.
     // user can set up the camera in the mean time.
-    navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia
-        || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
     navigator.getMedia({
         video: true,
         audio: false
-    }, async function (stream) {
+    }, async function(stream) {
         video.srcObject = stream;
         video.play();
-    }, function (error) {
+    }, function(error) {
         alert('Couldnt stream camera video');
     });
 
-    //send image in every INTERVAL_OF_CAPTURING_IMAGE_IN_MILI seconds interval
-    setInterval(takeImageFromCamera, INTERVAL_OF_CAPTURING_IMAGE_IN_MILI);
+    //send image in every INTERVAL_OF_CAPTURING_IMAGE_IN_MILI seconds interval 
+    // (from client-sender.hrml by server)
+    setInterval(takeImageFromCamera, captureImageInterval * 1000);
 
     //manually clicking the take image
-    document.getElementById('capture').addEventListener('click', function () {
+    document.getElementById('capture').addEventListener('click', function() {
         takeImageFromCamera();
     });
 
     //starts the camera takes the image and closes the camera.
     async function startCameraAndStreamVideo() {
-        navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia
-            || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+        navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
         navigator.getMedia({
             video: true,
             audio: false
-        }, async function (stream) {
+        }, async function(stream) {
             video.srcObject = stream;
 
             //play the video. then draw it on canvas. after then image will be sent to server.
@@ -47,7 +46,7 @@ window.onload = () => {
                 takeImage();
                 stopStreamedVideo();
             });
-        }, function (error) {
+        }, function(error) {
             alert('Couldnt stream camera video');
         });
         return;
