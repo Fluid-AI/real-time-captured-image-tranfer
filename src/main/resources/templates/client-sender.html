@@ -10,15 +10,24 @@
 <body>
     <div class="booth">
         <video id="video" width="600" height="500" src=""></video>
-        <h3>Above winodw will disapper in <span th:text="${captureImageInterval}">25</span> seconds. Set up your camera position.
-            <br>After <span th:text="${captureImageInterval}">25</span> seconds it will open camera only when taking pics with the interval of
-            <span th:text="${captureImageInterval}">25</span> seconds. Howerever you can reload the page and it will start again.</h3>
+        <h3>Above winodw will disapper in <span th:text="${captureImageInterval}">25</span> seconds. Set up your camera
+            position.
+            <br>After <span th:text="${captureImageInterval}">25</span> seconds it will open camera only when taking
+            pics with the interval of
+            <span th:text="${captureImageInterval}">25</span> seconds. Howerever you can reload the page and it will
+            start again.</h3>
         <a href="#" id="capture" class="booth-capture-button">Take photo</a>
         <canvas id="canvas" width="600" height="500"></canvas>
     </div>
     <div id="img1"></div>
     <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
     <script th:src="@{/js/client-sender.js}"></script>
+
+    <!-- <button onclick="stompClient.send('/app/hello', {}, JSON.stringify({'name': 'abc'}));">click </button> -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
+
     <script th:inline="javascript">
         /*<![CDATA[*/
 
@@ -28,7 +37,19 @@
 
         window.onload = () => {
             senderFunction(INTERVAL_OF_CAPTURING_IMAGE_IN_SECONDS);
+           
         }
+        function myFunction() {
+            var txt;
+            var person = prompt("Please enter your name:", "Harry Potter");
+            if (person == null || person == "") {
+                txt = "User cancelled the prompt.";
+            } else {
+                txt = "Hello " + person + "! How are you today?";
+            }
+            document.getElementById("demo").innerHTML = txt;
+        }
+
     </script>
 </body>
 

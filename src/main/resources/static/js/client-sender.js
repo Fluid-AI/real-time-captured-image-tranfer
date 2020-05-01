@@ -1,4 +1,4 @@
-function senderFunction(captureImageInterval) {
+function senderFunction(userName) {
     var video = document.getElementById('video'),
         canvas = document.getElementById('canvas'),
         context = canvas.getContext('2d'),
@@ -12,19 +12,29 @@ function senderFunction(captureImageInterval) {
     navigator.getMedia({
         video: true,
         audio: false
-    }, async function(stream) {
+    }, async function (stream) {
         video.srcObject = stream;
         video.play();
-    }, function(error) {
+    }, function (error) {
         alert('Couldnt stream camera video');
     });
 
     //send image in every INTERVAL_OF_CAPTURING_IMAGE_IN_MILI seconds interval 
     // (from client-sender.hrml by server)
-    setInterval(takeImageFromCamera, captureImageInterval * 1000);
+    // setInterval(takeImageFromCamera, captureImageInterval * 1000);
+    var socket = new SockJS('/web-socket');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({ userId: 'imran' }, function (frame) {
+
+        // setConnected(true);
+        // console.log('Connected: ' + frame);
+        // stompClient.subscribe('/topic/greetings-imran', function (greeting) {
+        //     console.log(greeting);
+        // });
+    });
 
     //manually clicking the take image
-    document.getElementById('capture').addEventListener('click', function() {
+    document.getElementById('capture').addEventListener('click', function () {
         takeImageFromCamera();
     });
 
@@ -36,7 +46,7 @@ function senderFunction(captureImageInterval) {
         navigator.getMedia({
             video: true,
             audio: false
-        }, async function(stream) {
+        }, async function (stream) {
             video.srcObject = stream;
 
             //play the video. then draw it on canvas. after then image will be sent to server.
@@ -46,7 +56,7 @@ function senderFunction(captureImageInterval) {
                 takeImage();
                 stopStreamedVideo();
             });
-        }, function(error) {
+        }, function (error) {
             alert('Couldnt stream camera video');
         });
         return;
@@ -83,16 +93,21 @@ function senderFunction(captureImageInterval) {
 
 //upload the given image to server.
 function uploadImageToServer(imageFile) {
-    const formData = new FormData();
-    formData.append("file", convertDataUriToBlob(imageFile));
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/upload");
+    // const formData = new FormData();
+    // formData.append("file", convertDataUriToBlob(imageFile));
+    // const xhr = new XMLHttpRequest();
+    // xhr.open("POST", "/upload");
 
-    // xhr.onload = function () {
-    //     // console.log(xhr.responseText);
-    // }
+    // // xhr.onload = function () {
+    // //     // console.log(xhr.responseText);
+    // // }
 
-    xhr.send(formData);
+    // xhr.send(formData);
+
+    const base64Uri = imageFile.replace('data:', '')
+    .replace(/^.+,/, '');
+
+    stompClient.send('/app/hello', {}, JSON.stringify({'name': base64Uri}));
 }
 
 // convert image uril to blob for sening the data.
