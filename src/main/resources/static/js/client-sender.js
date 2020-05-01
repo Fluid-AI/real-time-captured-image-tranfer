@@ -1,4 +1,4 @@
-function senderFunction(userName) {
+function startCapturingImage() {
     var video = document.getElementById('video'),
         canvas = document.getElementById('canvas'),
         context = canvas.getContext('2d'),
@@ -21,25 +21,26 @@ function senderFunction(userName) {
 
     //send image in every INTERVAL_OF_CAPTURING_IMAGE_IN_MILI seconds interval 
     // (from client-sender.hrml by server)
-    // setInterval(takeImageFromCamera, captureImageInterval * 1000);
+    // setInterval(takeImageFromCamera, 10 * 1000);
+
     var socket = new SockJS('/web-socket');
     stompClient = Stomp.over(socket);
-    stompClient.connect({ userId: 'imran' }, function (frame) {
-
-        // setConnected(true);
-        // console.log('Connected: ' + frame);
-        // stompClient.subscribe('/topic/greetings-imran', function (greeting) {
-        //     console.log(greeting);
-        // });
+    stompClient.connect({}, function (frame) {
+        stompClient.subscribe('/topic/sender/real-time-image', function (realTimeRequest) {
+            stopStreamedVideo();
+            startCameraAndStreamVideo(realTimeRequest.body);
+            logUserRequest(realTimeRequest.body);
+        });
     });
+
 
     //manually clicking the take image
-    document.getElementById('capture').addEventListener('click', function () {
-        takeImageFromCamera();
-    });
+    // document.getElementById('capture').addEventListener('click', function () {
+    //     takeImageFromCamera();
+    // });
 
     //starts the camera takes the image and closes the camera.
-    async function startCameraAndStreamVideo() {
+    async function startCameraAndStreamVideo(realTimeRequest) {
         navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
             navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
@@ -53,7 +54,7 @@ function senderFunction(userName) {
             //close the camera.
             video.play().then(() => {
                 context.drawImage(video, 0, 0, 600, 500);
-                takeImage();
+                takeImage(realTimeRequest);
                 stopStreamedVideo();
             });
         }, function (error) {
@@ -84,42 +85,24 @@ function senderFunction(userName) {
     }
 
     //converts canvas to image. and sends to server.
-    function takeImage() {
+    function takeImage(realTimeRequest) {
         var canvas = document.getElementById("canvas");
         var img = canvas.toDataURL("image/png");
-        uploadImageToServer(img);
+        const base64Uri = img.replace('data:', '').replace(/^.+,/, '');
+        
+        stompClient.send('/app/receiver/real-time-image', {}, JSON.stringify({
+            userName: realTimeRequest.userName,
+            sentOn: new Date(),
+            imgDataInBase64: base64Uri
+        }));
     }
 };
 
-//upload the given image to server.
-function uploadImageToServer(imageFile) {
-    // const formData = new FormData();
-    // formData.append("file", convertDataUriToBlob(imageFile));
-    // const xhr = new XMLHttpRequest();
-    // xhr.open("POST", "/upload");
+function logUserRequest(user){
+    // const logTable = document.getElementById('users').getElementsByTagName('tbody')[0];
 
-    // // xhr.onload = function () {
-    // //     // console.log(xhr.responseText);
-    // // }
+    // const row = logTable.insertRow();
 
-    // xhr.send(formData);
-
-    const base64Uri = imageFile.replace('data:', '')
-    .replace(/^.+,/, '');
-
-    stompClient.send('/app/hello', {}, JSON.stringify({'name': base64Uri}));
-}
-
-// convert image uril to blob for sening the data.
-function convertDataUriToBlob(dataUri) {
-    const byteString = atob(dataUri.split(',')[1]);
-    const mimeString = dataUri.split(',')[0].split(':')[1].split(';')[0]
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (var i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-    }
-    const blob = new Blob([ab], { type: mimeString });
-    return blob;
+    // for(const cell in [''])
 
 }

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>Client Receiver</title>
     <style>
-        .real-time-image {
+        #real-time-image {
             margin: 0px;
             width: 100%;
         }
@@ -13,8 +13,26 @@
 </head>
 
 <body>
-    <div>
-        <img src="" alt="Real TIme Image" id="real-time-image">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12 bg-dark text-white  p-2">
+                <div class="row align-center">
+                    <div class="col-10 text-center">
+                        Click The button to recieve the real time image from server</div>
+                    <div class="col-2 text-center">
+                        <button id='image-request' class="btn btn-primary">
+                            Recieve
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mt-1">
+                <img src="" alt="Real TIme Image" id="real-time-image">
+
+            </div>
+        </div>
+
     </div>
 
 </body>
@@ -22,33 +40,39 @@
 
 <script th:src="@{/webjars/jquery/3.4.1/jquery.min.js}"></script>
 <script th:src="@{/webjars/bootstrap/4.4.1-1/js/bootstrap.min.js}"></script>
-
 <script th:src="@{/webjars/stomp-websocket/2.3.3/stomp.min.js}"></script>
-
 <script th:src="@{/webjars/sockjs-client/1.1.2/sockjs.min.js}"></script>
 
-<script>
-        window.onload = () => {
-            // setInterval(() => {
-            //     location.reload();
-            // }, 25_000)
-            var socket = new SockJS('/web-socket');
-            stompClient = Stomp.over(socket);
-            stompClient.connect({ userId: 'abc' }, function (frame) {
-                // setConnected(true);
-                // console.log('Connected: ' + frame);
-                stompClient.subscribe('/topic/greetings-imran', function (greeting) {
-                    // console.log(greeting);
-                    const base64Imgurl = greeting.body;
-                    const src = "data:image/jpeg;base64," + base64Imgurl;
-                    const imgElement = document.getElementById('real-time-image');
-                    imgElement.setAttribute('src',src);
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var stompClient;
+    window.onload = () => {
+        connectSocketAndShowImage();
 
-                    // var imageUrl = urlCreator.createObjectURL(JSON.parse(greeting.body));
-                    // document.querySelector("#image").src = imageUrl;
-                });
-            });
+        document.getElementById('image-request').onclick = () => {
+            stompClient.send('/app/sender/real-time-image', {}, JSON.stringify({
+                userName: /*[[${userName}]]*/ ' fluidAI',
+                requestedAt: new Date()
+            }));
         }
+    }
+
+    function connectSocketAndShowImage() {
+        var socket = new SockJS('/web-socket');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            stompClient.subscribe('/topic/receiver/real-time-image', function (realTimeImageResponse) {
+                // console.log(greeting);
+                const senderResponse = JSON.parse(realTimeImageResponse.body);
+                const base64Imgurl = senderResponse.imgDataInBase64;
+                const src = "data:image/jpeg;base64," + base64Imgurl;
+                const imgElement = document.getElementById('real-time-image');
+                imgElement.setAttribute('src', src);
+            });
+        });
+    }
+
+    /*]]>*/
 </script>
 
 </html>

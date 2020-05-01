@@ -5,11 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @AllArgsConstructor
 @Builder
 @Data
 @NoArgsConstructor
-public class HelloMessage {
-
-    private String name;
+public class SenderRequestDto {
+    String userName;
+    LocalDate requestedAt;
 }

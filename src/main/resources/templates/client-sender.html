@@ -8,49 +8,87 @@
 
 
 <body>
-    <div class="booth">
-        <video id="video" width="600" height="500" src=""></video>
-        <h3>Above winodw will disapper in <span th:text="${captureImageInterval}">25</span> seconds. Set up your camera
-            position.
-            <br>After <span th:text="${captureImageInterval}">25</span> seconds it will open camera only when taking
-            pics with the interval of
-            <span th:text="${captureImageInterval}">25</span> seconds. Howerever you can reload the page and it will
-            start again.</h3>
-        <a href="#" id="capture" class="booth-capture-button">Take photo</a>
-        <canvas id="canvas" width="600" height="500"></canvas>
+    <div class="container-fluid mt-2">
+        <div class="row jumbotron">
+            <div class="col-12">
+                <div>
+                    <p>Hello, You are a sender. When a reciever request you
+                        a real time image, an image will be take from the camera.
+                        So position your camera accordingly click on the take Photo.
+                        It will connect you to server and And image will be taken only when reciever requests it.
+                    </p>
+                </div>
+            </div>
+            <div class="col-12 text-center">
+                <button id="capture" class="btn btn-danger">Take Photo</button>
+            </div>
+        </div>
+
+        <div class="row text-center">
+            <div class="col-12 col-xl-6 border border-primary bg-dark">
+                <!-- <div class="booth"> </div> -->
+                <h5 class="text-white mt-1" id = "video-info">Click the above Take Photo button</h5>
+                <video id="video" width="600" height="500" src=""></video>
+
+            </div>
+            <div class="col-12 col-xl-6 border border-danger bg-light">
+                <h5 class="mt-1">Latest Captured Image</h5>
+                <canvas id="canvas" width="600" height="500"></canvas>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <table id = "users"class="table table-striped table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th class="">#</th>
+                            <th class="">name</th>
+                            <th class="">Requested On</th>
+                            <th class=""></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
     </div>
-    <div id="img1"></div>
-    <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
-    <script th:src="@{/js/client-sender.js}"></script>
-
-    <!-- <button onclick="stompClient.send('/app/hello', {}, JSON.stringify({'name': 'abc'}));">click </button> -->
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
-
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-
-        //to be used by client-sender.js
-        const INTERVAL_OF_CAPTURING_IMAGE_IN_SECONDS = /*[[${captureImageInterval}]]*/ 25;
-        /*]]>*/
-
-        window.onload = () => {
-            senderFunction(INTERVAL_OF_CAPTURING_IMAGE_IN_SECONDS);
-           
-        }
-        function myFunction() {
-            var txt;
-            var person = prompt("Please enter your name:", "Harry Potter");
-            if (person == null || person == "") {
-                txt = "User cancelled the prompt.";
-            } else {
-                txt = "Hello " + person + "! How are you today?";
-            }
-            document.getElementById("demo").innerHTML = txt;
-        }
-
-    </script>
 </body>
+<link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
+<script th:src="@{/js/client-sender.js}"></script>
+
+<link rel="stylesheet" th:href="@{/webjars/bootstrap/4.4.1-1/css/bootstrap.min.css}" />
+<script th:src="@{/webjars/jquery/3.4.1/jquery.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/4.4.1-1/js/bootstrap.min.js}"></script>
+<script th:src="@{/webjars/stomp-websocket/2.3.3/stomp.min.js}"></script>
+<script th:src="@{/webjars/sockjs-client/1.1.2/sockjs.min.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    window.onload = () => {
+    
+        document.getElementById('capture').onclick = () => {
+            //in sender.js file
+            startCapturingImage()
+            const thisButton = document.getElementById('capture');
+            thisButton.classList = "btn btn-success";
+            thisButton.disabled = true;
+            thisButton.innerHTML = 'You are Online Now';
+
+            document.getElementById('video-info').innerHTML = 'Your Video';
+
+        };
+
+
+    }
+
+    /*]]>*/
+</script>
 
 </html>
