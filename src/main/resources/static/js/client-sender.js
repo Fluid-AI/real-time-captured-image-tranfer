@@ -49,7 +49,7 @@ function startCapturingImage() {
                 stopStreamedVideo();
             });
         }, function (error) {
-            alert('Couldnt stream camera video');
+            console.log('Couldnt stream camera video');
         });
         return;
     }
