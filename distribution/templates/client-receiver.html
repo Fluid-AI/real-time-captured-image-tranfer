@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>Client Receiver</title>
     <style>
-        .real-time-image {
+        #real-time-image {
             margin: 0px;
             width: 100%;
         }
@@ -13,24 +13,74 @@
 </head>
 
 <body>
-    <h3> currennt Time: <span th:text="${#dates.format(new java.util.Date())}"></span></h3>
-    <small>It will auto reload every 25 seconds</small>
-    <button onclick="location.reload()">Reload</button>
-    <table width="100%">
-        <tr th:each="realTimeImage: ${realTimeImages}">
-            <h4 th:text="${#dates.format(new java.util.Date(realTimeImage.imageTime))}"></h4>
-            <br>
-            <img class = "real-time-image" th:attr="src=@{'/image/' + ${realTimeImage.imageName} }" />
-        </tr>
-    </table>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12 bg-dark text-white p-2">
+                <div class="row align-center">
+                    <div class="col-1 text-danger">
+                        <a href="/logout" title="Logout" class = "btn btn-danger">Logout</a>
+                    </div>
+                    <div class="col-9 text-center">
+                        Hello, <span th:text="${userName}">User</span> Click The button to recieve the real time image from server</div>
+                    <div class="col-2 text-center">
+                        <button id='image-request' class="btn btn-primary">
+                            Recieve
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mt-1">
+                <h4 class="bg-danger text-white text-center p-1">Image Taken at: <span id="image-time">None</span></h4>
+                <img src="" alt="Your Image Will Appear Here" id="real-time-image">
+            </div>
+        </div>
+
+    </div>
 
 </body>
-<script>
-        window.onload = () => {
-            setInterval(() => {
-                location.reload();
-            }, 25_000)
+<link rel="stylesheet" th:href="@{/webjars/bootstrap/4.4.1-1/css/bootstrap.min.css}" />
+<script th:src="@{/webjars/jquery/3.4.1/jquery.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/4.4.1-1/js/bootstrap.min.js}"></script>
+<script th:src="@{/webjars/stomp-websocket/2.3.3/stomp.min.js}"></script>
+<script th:src="@{/webjars/sockjs-client/1.1.2/sockjs.min.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+   
+    var stompClient;
+    window.onload = () => {
+        connectSocketAndShowImage();
+
+        document.getElementById('image-request').onclick = () => {
+            stompClient.send('/app/sender/real-time-image', {}, JSON.stringify({
+                //username from authentication
+                userName: /*[[${userName}]]*/ ' fluidAI',
+                requestedAt: new Date()
+            }));
         }
+    }
+
+    function connectSocketAndShowImage() {
+        var socket = new SockJS('/web-socket');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            stompClient.subscribe('/topic/receiver/real-time-image', function (realTimeImageResponse) {
+
+                const senderResponse = JSON.parse(realTimeImageResponse.body);
+                
+                const base64Imgurl = senderResponse.imgDataInBase64;
+                const imgDataUri = "data:image/jpeg;base64," + base64Imgurl;
+
+                const imgElement = document.getElementById('real-time-image');
+                imgElement.setAttribute('src', imgDataUri);
+
+                document.getElementById('image-time').innerHTML = new Date(senderResponse.sentOn).toLocaleString();
+            });
+        });
+    }
+
+    /*]]>*/
 </script>
 
 </html>

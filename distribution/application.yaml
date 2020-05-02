@@ -1,2 +1,8 @@
 server:
   port : 8081
+
+config:
+  #capture image in seconds
+  interval: 20
+  #no of image stored on server and to be shown
+  limit: 1

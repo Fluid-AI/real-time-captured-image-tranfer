@@ -1,6 +1,4 @@
-const INTERVAL_OF_CAPTURING_IMAGE_IN_MILI = 30_000;
-
-window.onload = () => {
+function startCapturingImage() {
     var video = document.getElementById('video'),
         canvas = document.getElementById('canvas'),
         context = canvas.getContext('2d'),
@@ -8,8 +6,8 @@ window.onload = () => {
 
     // On loading page. It will show you the camera streams.
     // user can set up the camera in the mean time.
-    navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia
-        || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
     navigator.getMedia({
         video: true,
@@ -21,18 +19,21 @@ window.onload = () => {
         alert('Couldnt stream camera video');
     });
 
-    //send image in every INTERVAL_OF_CAPTURING_IMAGE_IN_MILI seconds interval
-    setInterval(takeImageFromCamera, INTERVAL_OF_CAPTURING_IMAGE_IN_MILI);
-
-    //manually clicking the take image
-    document.getElementById('capture').addEventListener('click', function () {
-        takeImageFromCamera();
+    //socket connections to server
+    var socket = new SockJS('/web-socket');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        stompClient.subscribe('/topic/sender/real-time-image', function (realTimeRequest) {
+            stopStreamedVideo();
+            startCameraAndStreamVideo(realTimeRequest.body);
+            logUserRequest(realTimeRequest.body);
+        });
     });
 
     //starts the camera takes the image and closes the camera.
-    async function startCameraAndStreamVideo() {
-        navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia
-            || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    async function startCameraAndStreamVideo(realTimeRequest) {
+        navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
         navigator.getMedia({
             video: true,
@@ -44,13 +45,18 @@ window.onload = () => {
             //close the camera.
             video.play().then(() => {
                 context.drawImage(video, 0, 0, 600, 500);
-                takeImage();
+                takeImageAndSendToReceiver(realTimeRequest);
                 stopStreamedVideo();
             });
         }, function (error) {
-            alert('Couldnt stream camera video');
+            console.log('Couldnt stream camera video');
         });
         return;
+    }
+
+    document.getElementById('close-video').onclick = () => {
+        stopStreamedVideo();
+        document.getElementById('close-video').style.display = 'none';
     }
 
     //closes the camera.
@@ -67,45 +73,34 @@ window.onload = () => {
         return;
     }
 
-    //will be called by interval method.
-    function takeImageFromCamera() {
-        //remember to stop already running camera.
-        stopStreamedVideo();
-        startCameraAndStreamVideo();
-    }
 
     //converts canvas to image. and sends to server.
-    function takeImage() {
+    function takeImageAndSendToReceiver(realTimeRequest) {
         var canvas = document.getElementById("canvas");
         var img = canvas.toDataURL("image/png");
-        uploadImageToServer(img);
+        const base64Uri = img.replace('data:', '').replace(/^.+,/, '');
+
+        //send to connected sockets
+        stompClient.send('/app/receiver/real-time-image', {}, JSON.stringify({
+            userName: realTimeRequest.userName,
+            sentOn: new Date(),
+            imgDataInBase64: base64Uri
+        }));
     }
 };
 
-//upload the given image to server.
-function uploadImageToServer(imageFile) {
-    const formData = new FormData();
-    formData.append("file", convertDataUriToBlob(imageFile));
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/upload");
+function logUserRequest(user) {
+    user = JSON.parse(user);
 
-    // xhr.onload = function () {
-    //     // console.log(xhr.responseText);
-    // }
+    const logTable = document.getElementById('users').getElementsByTagName('tbody')[0];
 
-    xhr.send(formData);
-}
+    const row = logTable.insertRow();
 
-// convert image uril to blob for sening the data.
-function convertDataUriToBlob(dataUri) {
-    const byteString = atob(dataUri.split(',')[1]);
-    const mimeString = dataUri.split(',')[0].split(':')[1].split(';')[0]
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (var i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
+    let i = 0;
+    for (const cellValue of [logTable.rows.length, user.userName, new Date(user.requestedAt).toLocaleString()]) {
+        const cell = row.insertCell(i++);
+        const cellText = document.createTextNode(cellValue);
+        cell.appendChild(cellText);
     }
-    const blob = new Blob([ab], { type: mimeString });
-    return blob;
 
 }
