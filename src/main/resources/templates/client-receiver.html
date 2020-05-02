@@ -18,8 +18,11 @@
         <div class="row">
             <div class="col-12 bg-dark text-white p-2">
                 <div class="row align-center">
-                    <div class="col-10 text-center">
-                        Click The button to recieve the real time image from server</div>
+                    <div class="col-1 text-danger">
+                        <a href="/logout" title="Logout" class = "btn btn-danger">Logout</a>
+                    </div>
+                    <div class="col-9 text-center">
+                        Hello, <span th:text="${userName}">User</span> Click The button to recieve the real time image from server</div>
                     <div class="col-2 text-center">
                         <button id='image-request' class="btn btn-primary">
                             Recieve
