@@ -19,10 +19,7 @@ function startCapturingImage() {
         alert('Couldnt stream camera video');
     });
 
-    //send image in every INTERVAL_OF_CAPTURING_IMAGE_IN_MILI seconds interval 
-    // (from client-sender.hrml by server)
-    // setInterval(takeImageFromCamera, 10 * 1000);
-
+    //socket connections to server
     var socket = new SockJS('/web-socket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
@@ -32,12 +29,6 @@ function startCapturingImage() {
             logUserRequest(realTimeRequest.body);
         });
     });
-
-
-    //manually clicking the take image
-    // document.getElementById('capture').addEventListener('click', function () {
-    //     takeImageFromCamera();
-    // });
 
     //starts the camera takes the image and closes the camera.
     async function startCameraAndStreamVideo(realTimeRequest) {
@@ -54,13 +45,18 @@ function startCapturingImage() {
             //close the camera.
             video.play().then(() => {
                 context.drawImage(video, 0, 0, 600, 500);
-                takeImage(realTimeRequest);
+                takeImageAndSendToReceiver(realTimeRequest);
                 stopStreamedVideo();
             });
         }, function (error) {
             alert('Couldnt stream camera video');
         });
         return;
+    }
+
+    document.getElementById('close-video').onclick = () => {
+        stopStreamedVideo();
+        document.getElementById('close-video').style.display = 'none';
     }
 
     //closes the camera.
@@ -77,19 +73,14 @@ function startCapturingImage() {
         return;
     }
 
-    //will be called by interval method.
-    function takeImageFromCamera() {
-        //remember to stop already running camera.
-        stopStreamedVideo();
-        startCameraAndStreamVideo();
-    }
 
     //converts canvas to image. and sends to server.
-    function takeImage(realTimeRequest) {
+    function takeImageAndSendToReceiver(realTimeRequest) {
         var canvas = document.getElementById("canvas");
         var img = canvas.toDataURL("image/png");
         const base64Uri = img.replace('data:', '').replace(/^.+,/, '');
-        
+
+        //send to connected sockets
         stompClient.send('/app/receiver/real-time-image', {}, JSON.stringify({
             userName: realTimeRequest.userName,
             sentOn: new Date(),
@@ -98,11 +89,18 @@ function startCapturingImage() {
     }
 };
 
-function logUserRequest(user){
-    // const logTable = document.getElementById('users').getElementsByTagName('tbody')[0];
+function logUserRequest(user) {
+    user = JSON.parse(user);
 
-    // const row = logTable.insertRow();
+    const logTable = document.getElementById('users').getElementsByTagName('tbody')[0];
 
-    // for(const cell in [''])
+    const row = logTable.insertRow();
+
+    let i = 0;
+    for (const cellValue of [logTable.rows.length, user.userName, new Date(user.requestedAt).toLocaleString()]) {
+        const cell = row.insertCell(i++);
+        const cellText = document.createTextNode(cellValue);
+        cell.appendChild(cellText);
+    }
 
 }

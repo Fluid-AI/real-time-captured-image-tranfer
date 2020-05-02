@@ -12,7 +12,7 @@
         <div class="row jumbotron">
             <div class="col-12">
                 <div>
-                    <p>Hello, You are a sender. When a reciever request you
+                    <p>Hello, You are a sender now, when a reciever request you
                         a real time image, an image will be take from the camera.
                         So position your camera accordingly click on the take Photo.
                         It will connect you to server and And image will be taken only when reciever requests it.
@@ -27,7 +27,10 @@
         <div class="row text-center">
             <div class="col-12 col-xl-6 border border-primary bg-dark">
                 <!-- <div class="booth"> </div> -->
-                <h5 class="text-white mt-1" id = "video-info">Click the above Take Photo button</h5>
+                <h5 class="text-white mt-1">
+                    <span id="video-info">Click the above Take Photo button</span>
+                    <button class="btn btn-danger" id="close-video" style="display: none">Close Video</button>
+                </h5>
                 <video id="video" width="600" height="500" src=""></video>
 
             </div>
@@ -40,18 +43,19 @@
 
         <div class="row">
             <div class="col-12">
-                <table id = "users"class="table table-striped table-bordered">
+                <h4 class="bg-primary text-white text-center p-2 my-2"> See who have requested your Images</h4>
+            </div>
+            <div class="col-12">
+                <table id="users" class="table table-striped table-bordered">
                     <thead class="thead-dark">
                         <tr>
                             <th class="">#</th>
                             <th class="">name</th>
                             <th class="">Requested On</th>
-                            <th class=""></th>
                         </tr>
                     </thead>
                     <tbody>
-                        
-
+                        <!-- your log will be generate here via JS -->
                     </tbody>
 
                 </table>
@@ -69,10 +73,8 @@
 <script th:src="@{/webjars/sockjs-client/1.1.2/sockjs.min.js}"></script>
 
 <script th:inline="javascript">
-    /*<![CDATA[*/
-
     window.onload = () => {
-    
+
         document.getElementById('capture').onclick = () => {
             //in sender.js file
             startCapturingImage()
@@ -82,13 +84,9 @@
             thisButton.innerHTML = 'You are Online Now';
 
             document.getElementById('video-info').innerHTML = 'Your Video';
-
+            document.getElementById('close-video').style.display = 'inline';
         };
-
-
     }
-
-    /*]]>*/
 </script>
 
 </html>

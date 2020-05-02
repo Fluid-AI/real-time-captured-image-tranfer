@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 @AllArgsConstructor
 @Builder
@@ -13,6 +13,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class SenderResponseDto {
     String userName;
-    LocalDate sentOn;
+    Date sentOn;
     String imgDataInBase64;
 }
