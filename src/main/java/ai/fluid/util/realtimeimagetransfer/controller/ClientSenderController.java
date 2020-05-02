@@ -12,7 +12,6 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class ClientSenderController {
 
-
     @GetMapping("sender/client-sender")
     public ModelAndView clientSender() {
         return new ModelAndView("client-sender");

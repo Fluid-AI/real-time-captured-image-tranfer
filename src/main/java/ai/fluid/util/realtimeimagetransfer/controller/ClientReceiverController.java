@@ -20,6 +20,7 @@ public class ClientReceiverController {
         model.addObject("userName", principal.getName());
         return model;
     }
+    
     @MessageMapping("/receiver/real-time-image")
     @SendTo("/topic/receiver/real-time-image")
     public SenderResponseDto requestRealTimeImageToSender(SenderResponseDto senderResponseDto) {
