@@ -1,8 +1,20 @@
 server:
   port : 8081
 
-config:
-  #capture image in seconds
-  interval: 20
-  #no of image stored on server and to be shown
-  limit: 1
+auth:
+  #username: password #Note: don't use space in either user or password
+  #who received the images
+  receiver:
+    imran: imran@123
+    jayesh: jayesh@123
+    parag: parag@123
+    shubham: shubham@123
+    noman: noman@123
+    ashwin: ashwin@123
+    azhar: azhar@123
+    yuvaraj: yuvaraj@123
+    shahanawaz: shahanawaz@123
+
+  #who sends the image
+  sender:
+    abhinav: abhinav@12345

@@ -9,5 +9,4 @@ public class RealTimeImageTransferApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(RealTimeImageTransferApplication.class, args);
 	}
-
 }
